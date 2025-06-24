@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة اضرب الخلد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.4rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .hole {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(to bottom, #5d4037, #321911);
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: inset 0 10px 0 rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .hole::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            width: 100%;
+            height: 60%;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+        }
+        
+        .mole {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            background: linear-gradient(to bottom, #795548, #5d4037);
+            border-radius: 50%;
+            bottom: -100%;
+            transition: bottom 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .mole::before {
+            content: '';
+            position: absolute;
+            width: 40%;
+            height: 30%;
+            background: #5d4037;
+            border-radius: 50%;
+            top: 15%;
+        }
+        
+        .mole::after {
+            content: '';
+            position: absolute;
+            width: 20%;
+            height: 10%;
+            background: #000;
+            border-radius: 50%;
+            top: 25%;
+            left: 20%;
+            box-shadow: 20px 0 0 #000;
+        }
+        
+        .mole.active {
+            bottom: 20%;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to bottom, #ff9800, #f57c00);
+            margin: 10px auto;
+            width: 80%;
+            max-width: 300px;
+            display: block;
+        }
+        
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+            display: none;
+        }
+        
+        .message-content {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .message h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .message p {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .score-container {
+                font-size: 1.2rem;
+                padding: 10px;
+            }
+            
+            .game-area {
+                gap: 10px;
+            }
+            
+            .btn {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-paw"></i> لعبة اضرب الخلد</h1>
+            <p>اضرب الخلد عندما يظهر!</p>
+        </div>
+        
+        <div class="score-container">
+            <div class="score">النقاط: <span id="score">0</span></div>
+            <div class="time">الوقت: <span id="time">30</span> ثانية</div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <!-- الثقوب والخلد يتم إضافتها بواسطة الجافاسكريبت -->
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="startBtn">ابدأ اللعب</button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> طريقة اللعب:</h3>
+            <p>1. اضغط زر "ابدأ اللعب" لبدء اللعبة</p>
+            <p>2. سيظهر الخلد عشوائياً في أحد الثقوب</p>
+            <p>3. اضغط على الخلد بسرعة عندما يظهر</p>
+            <p>4. كل ضربة ناجحة تحصل على نقطة</p>
+            <p>5. لديك 30 ثانية للحصول على أكبر عدد من النقاط</p>
+        </div>
+    </div>
+    
+    <div class="message" id="message">
+        <div class="message-content">
+            <h2 id="messageTitle">انتهى الوقت!</h2>
+            <p>نقاطك: <span id="finalScore">0</span></p>
+            <button class="btn" id="restartBtn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // عناصر DOM
+        const gameArea = document.getElementById('gameArea');
+        const startBtn = document.getElementById('startBtn');
+        const messageEl = document.getElementById('message');
+        const messageTitle = document.getElementById('messageTitle');
+        const finalScoreEl = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        
+        // متغيرات اللعبة
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let timer;
+        let moleTimer;
+        let holes = [];
+        
+        // إنشاء ثقوب اللعبة
+        function createHoles() {
+            gameArea.innerHTML = '';
+            holes = [];
+            
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'hole';
+                
+                const mole = document.createElement('div');
+                mole.className = 'mole';
+                mole.dataset.index = i;
+                
+                hole.appendChild(mole);
+                gameArea.appendChild(hole);
+                
+                hole.addEventListener('click', () => whackMole(i));
+                holes.push({
+                    holeElement: hole,
+                    moleElement: mole,
+                    isActive: false
+                });
+            }
+        }
+        
+        // بدء اللعبة
+        function startGame() {
+            if (gameActive) return;
+            
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            scoreEl.textContent = score;
+            timeEl.textContent = timeLeft;
+            messageEl.style.display = 'none';
+            startBtn.disabled = true;
+            startBtn.textContent = 'جاري اللعب...';
+            
+            // بدء المؤقت
+            timer = setInterval(() => {
+                timeLeft--;
+                timeEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // بدء ظهور الخلد
+            showRandomMole();
+        }
+        
+        // إظهار خلد عشوائي
+        function showRandomMole() {
+            if (!gameActive) return;
+            
+            // إخفاء أي خلد نشط
+            hideAllMoles();
+            
+            // اختيار ثقب عشوائي
+            const randomIndex = Math.floor(Math.random() * holes.length);
+            const hole = holes[randomIndex];
+            
+            // إظهار الخلد
+            hole.moleElement.classList.add('active');
+            hole.isActive = true;
+            
+            // إخفاء الخلد بعد فترة
+            const showTime = Math.random() * 1500 + 800; // بين 0.8 و 2.3 ثانية
+            moleTimer = setTimeout(() => {
+                if (hole.isActive) {
+                    hole.moleElement.classList.remove('active');
+                    hole.isActive = false;
+                    showRandomMole();
+                }
+            }, showTime);
+        }
+        
+        // إخفاء جميع الخلدان
+        function hideAllMoles() {
+            holes.forEach(hole => {
+                hole.moleElement.classList.remove('active');
+                hole.isActive = false;
+            });
+        }
+        
+        // ضرب الخلد
+        function whackMole(index) {
+            if (!gameActive || !holes[index].isActive) return;
+            
+            // إخفاء الخلد
+            holes[index].moleElement.classList.remove('active');
+            holes[index].isActive = false;
+            
+            // زيادة النقاط
+            score++;
+            scoreEl.textContent = score;
+            
+            // صوت الضربة (اختياري)
+            // يمكن إضافة صوت هنا لو رغبت
+            
+            // إظهار خلد جديد بعد فترة قصيرة
+            clearTimeout(moleTimer);
+            setTimeout(showRandomMole, 500);
+        }
+        
+        // إنهاء اللعبة
+        function endGame() {
+            gameActive = false;
+            clearInterval(timer);
+            clearTimeout(moleTimer);
+            startBtn.disabled = false;
+            startBtn.textContent = 'ابدأ اللعب';
+            
+            hideAllMoles();
+            
+            // عرض رسالة النهاية
+            messageTitle.textContent = 'انتهى الوقت!';
+            finalScoreEl.textContent = score;
+            messageEl.style.display = 'flex';
+        }
+        
+        // إعادة اللعبة
+        function restartGame() {
+            messageEl.style.display = 'none';
+            startGame();
+        }
+        
+        // تعيين معالجي الأحداث
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', restartGame);
+        
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            createHoles();
+        });
+    </script>
+</body>
+</html>
